@@ -1,10 +1,14 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'jdk17'
+    }
+
     stages {
-        stage('Test') {
+        stage('Test JDK') {
             steps {
-                echo 'Pipeline is running'
+                sh 'java -version'
             }
         }
     }
