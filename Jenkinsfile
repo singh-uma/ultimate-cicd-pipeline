@@ -7,6 +7,7 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -20,13 +21,18 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
+            environment {
+                SCANNER_HOME = tool 'sonar-scanner'
+            }
             steps {
                 withSonarQubeEnv('sonar') {
-                    sh '''
-                      mvn sonar:sonar \
+                    sh """
+                      ${SCANNER_HOME}/bin/sonar-scanner \
                       -Dsonar.projectKey=ultimate-cicd \
-                      -Dsonar.projectName=ultimate-cicd
-                    '''
+                      -Dsonar.projectName=ultimate-cicd \
+                      -Dsonar.sources=src \
+                      -Dsonar.java.binaries=target
+                    """
                 }
             }
         }
