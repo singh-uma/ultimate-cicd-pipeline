@@ -7,16 +7,35 @@ pipeline {
     }
 
     stages {
-        stage('Verify Tools') {
+        stage('Checkout') {
             steps {
-                sh 'java -version'
-                sh 'mvn -version'
+                checkout scm
             }
         }
 
-        stage('Maven Build') {
+        stage('Build') {
             steps {
                 sh 'mvn clean package'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                      mvn sonar:sonar \
+                      -Dsonar.projectKey=ultimate-cicd \
+                      -Dsonar.projectName=ultimate-cicd
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
     }
